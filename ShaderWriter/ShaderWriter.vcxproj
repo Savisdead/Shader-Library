@@ -19,23 +19,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Base.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\Function.h" />
     <ClInclude Include="src\ShaderType.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="src\BLFrag.txt" />
-    <Text Include="src\Temp\BPFrag.txt" />
-    <Text Include="src\Temp\BPVert.txt" />
-    <Text Include="src\Temp\Frag1.txt" />
-    <Text Include="src\Temp\Frag.txt" />
-    <Text Include="src\Temp\Vert.txt" />
-    <Text Include="src\Temp\Vert2.txt" />
-    <Text Include="src\BLVert.txt" />
+    <Text Include="src\PBRfs.txt" />
+    <Text Include="src\PBRvs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Base.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\textures\rusted-grate_albedo.png" />
+    <Image Include="src\textures\rusted-grate_ao.png" />
+    <Image Include="src\textures\rusted-grate_metallic.png" />
+    <Image Include="src\textures\rusted-grate_normal-ogl.png" />
+    <Image Include="src\textures\rusted-grate_roughness.png" />
+    <Image Include="src\textures\waterMap.png" />
+    <Image Include="src\textures\waternoise.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Base.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -34,13 +29,35 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="src\Temp\Vert.txt" />
-    <Text Include="src\Temp\Frag.txt" />
-    <Text Include="src\Temp\Frag1.txt" />
-    <Text Include="src\Temp\Vert2.txt" />
-    <Text Include="src\BLFrag.txt" />
-    <Text Include="src\BLVert.txt" />
-    <Text Include="src\Temp\BPFrag.txt" />
-    <Text Include="src\Temp\BPVert.txt" />
+    <Text Include="src\PBRvs.txt" />
+    <Text Include="src\PBRfs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\textures\rusted-grate_albedo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\textures\rusted-grate_ao.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\textures\rusted-grate_normal-ogl.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\textures\rusted-grate_metallic.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\textures\rusted-grate_roughness.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\textures\waterMap.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\textures\waternoise.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -1,0 +1,201 @@
+#version 460 core
+//Layouts
+//Ins
+in vec3 Normal;
+in vec3 WorldPos;
+in vec2 TexCoords;
+//Uniforms
+uniform vec3 camPos;
+uniform vec3 lightColors[4];
+uniform vec3 lightPositions[4];
+uniform sampler2D aoMap;
+uniform sampler2D roughnessMap;
+uniform sampler2D metallicMap;
+uniform sampler2D normalMap;
+uniform sampler2D albedoMap;
+//Outs
+out vec4 FragColor;
+
+vec3 GetNormalFromMap()
+{
+	vec3 tangentNormal = vec3(texture(normalMap, TexCoords).xyz * 2.000000 - 1.000000);
+
+	vec3 Q1 = vec3(dFdx(WorldPos));
+
+	vec3 Q2 = vec3(dFdy(WorldPos));
+
+	vec2 st1 = vec2(dFdx(TexCoords));
+
+	vec2 st2 = vec2(dFdy(TexCoords));
+
+	vec3 N = vec3(normalize(Normal));
+
+	vec3 T = vec3(normalize(Q1 * st2.t - Q2 * st1.t));
+
+	vec3 B = vec3(-normalize(cross(N, T)));
+
+	mat3 TBN = mat3(mat3(T, B, N));
+
+	return normalize(TBN * tangentNormal);
+
+//GetNormalFromMapBody
+}
+
+
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+	float a = float(roughness * roughness);
+
+	float a2 = float(a * a);
+
+	float NdotH = float(max(dot(N, H), 0.000000));
+
+	float NdotH2 = float(NdotH * NdotH);
+
+	float nom = float(a2);
+
+	float temp = float(a2 - 1.000000);
+
+	float denom = float(NdotH2 * temp + 1.000000);
+
+	denom = float(denom * denom * 3.141592);
+
+	return nom / denom;
+
+//DistributionGGXBody
+}
+
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+	float r = float(roughness + 1.000000);
+
+	float temp = float(r * r);
+
+	float k = float(temp / 8.000000);
+
+	temp = float(1.000000 - k);
+
+	float denom = float(NdotV * temp + k);
+
+	return NdotV / denom;
+
+//GeometrySchlickGGXBody
+}
+
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+	float ourVar = float(N * L);
+
+	float NdotV = float(max(dot(N, V), 0.000000));
+
+	float NdotL = float(max(dot(N, L), 0.000000));
+
+	float ggx2 = float(GeometrySchlickGGX( NdotV, roughness ));
+
+	float ggx1 = float(GeometrySchlickGGX( NdotL, roughness ));
+
+	return ggx1 * ggx2;
+
+//GeometrySmithBody
+}
+
+
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
+{
+	vec3 temp = vec3(1.000000 - F0);
+
+	return F0 + temp * pow(clamp(1.000000 - cosTheta, 0.000000, 1.000000), 5.000000);
+
+//FresnelSchlickBody
+}
+
+
+vec4 addPBR(vec2 TexCoords, vec3 WorldPos, vec3 Normal)
+{
+	vec3 albedo = vec3(pow(texture(albedoMap, TexCoords).rgb, vec3(2.200000)));
+
+	float metallic = float(texture(metallicMap, TexCoords).r);
+
+	float roughness = float(texture(roughnessMap, TexCoords).r);
+
+	float ao = float(texture(aoMap, TexCoords).r);
+
+	vec3 N = vec3(GetNormalFromMap());
+
+	vec3 V = vec3(normalize(camPos - WorldPos));
+
+	vec3 F0 = vec3(vec3(0.040000));
+
+	F0 = vec3(mix(F0, albedo, metallic));
+
+	vec3 Lo = vec3(vec3(0.000000));
+
+	for( int i = 0; i < 4.000000;++i)
+	{
+		vec3 L = vec3(normalize(lightPositions[i] - WorldPos));
+
+		vec3 H = vec3(normalize(V + L));
+
+		float distance = float(length(lightPositions[i] - WorldPos));
+
+		float temp = float(distance * distance);
+
+		float attenuation = float(1.000000 / temp);
+
+		vec3 radiance = vec3(lightColors[i] * attenuation);
+
+		float NDF = float(DistributionGGX( N, H, roughness ));
+
+		float G = float(GeometrySmith( N, V, L, roughness ));
+
+		vec3 F = vec3(FresnelSchlick( max(dot(H, V), 0.000000), F0 ));
+
+		vec3 numerator = vec3(NDF * G * F);
+
+		float denominator = float(4.000000 * max(dot(N, V), 0.000000) * max(dot(N, L), 0.000000) + 0.000100);
+
+		vec3 specular = vec3(numerator / denominator);
+
+		vec3 kD = vec3(vec3(1.000000) - F);
+
+		temp = float(1.000000 - metallic);
+
+		kD = vec3(kD * temp);
+
+		float NdotL = float(max(dot(N, L), 0.000000));
+
+		vec3 temp2 = vec3(kD * albedo / 3.141593 + specular);
+
+		temp2 = vec3(temp2 * radiance * NdotL);
+
+		Lo = vec3(Lo + temp2);
+
+
+	//ForBody1
+	}
+
+	vec3 ambient = vec3(vec3(0.030000) * albedo * ao);
+
+	vec3 color = vec3(ambient + Lo);
+
+	vec3 temp2 = vec3(color + vec3(1.000000));
+
+	color = vec3(color / temp2);
+
+	color = vec3(pow(color, vec3(0.454545)));
+
+	FragColor = vec4(FragColor + vec4(color, 1.0));
+
+	return FragColor;
+
+//addPBRBody
+}
+
+//Functions
+void main()
+{
+	FragColor = vec4(addPBR( TexCoords, WorldPos, Normal ));
+//END
+}

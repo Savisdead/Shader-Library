@@ -38,13 +38,16 @@ public:
     string Type;
     string Name;
     
-
+  
     ShaderType operator* (const ShaderType& other) {
         stringstream ss;
         ShaderType st = typeCheck(other, " * ");
+
+        // If the types are incompatible, return a ShaderType with the "NONE" type
         if (st.Type.compare("NONE") != 0) {
             return st;
         }
+        // Otherwise, combine the two ShaderType names with a " * " separator and return the result
         else {
             ss << Name + " * " + other.Name;
             return ShaderType(Type, ss.str());
@@ -87,6 +90,54 @@ public:
         }
     }
 
+    ShaderType operator< (const ShaderType& other) {
+        stringstream ss;
+        ShaderType st = typeCheck(other, " < ");
+        if (st.Type.compare("NONE") != 0) {
+            return st;
+        }
+        else {
+            ss << Name + " < " + other.Name;
+            return ShaderType(Type, ss.str());
+        }
+    }
+
+    ShaderType operator> (const ShaderType& other) {
+        stringstream ss;
+        ShaderType st = typeCheck(other, " > ");
+        if (st.Type.compare("NONE") != 0) {
+            return st;
+        }
+        else {
+            ss << Name + " > " + other.Name;
+            return ShaderType(Type, ss.str());
+        }
+    }
+
+    ShaderType operator>= (const ShaderType& other) {
+        stringstream ss;
+        ShaderType st = typeCheck(other, " >= ");
+        if (st.Type.compare("NONE") != 0) {
+            return st;
+        }
+        else {
+            ss << Name + " >= " + other.Name;
+            return ShaderType(Type, ss.str());
+        }
+    }
+
+    ShaderType operator<= (const ShaderType& other) {
+        stringstream ss;
+        ShaderType st = typeCheck(other, " <= ");
+        if (st.Type.compare("NONE") != 0) {
+            return st;
+        }
+        else {
+            ss << Name + " <= " + other.Name;
+            return ShaderType(Type, ss.str());
+        }
+    }
+
     ShaderType operator* (const float& other) {
         stringstream ss;
         ss << Name + " * " + to_string(other);
@@ -95,78 +146,83 @@ public:
 
     ShaderType operator+ (const float& other) {
         stringstream ss;
-        ss << Name + " * " + to_string(other);
+        ss << Name + " + " + to_string(other);
         return ShaderType(Type, ss.str());
     }
 
     ShaderType operator- (const float& other) {
         stringstream ss;
-        ss << Name + " * " + to_string(other);
+        ss << Name + " - " + to_string(other);
         return ShaderType(Type, ss.str());
     }
 
     ShaderType operator/ (const float& other) {
         stringstream ss;
-        ss << Name + " * " + to_string(other);
+        ss << Name + " / " + to_string(other);
         return ShaderType(Type, ss.str());
     }
 
+    ShaderType operator< (const float& other) {
+        stringstream ss;
+        ss << Name + " < " + to_string(other);
+        return ShaderType(Type, ss.str());
+    }
 
+    ShaderType operator> (const float& other) {
+        stringstream ss;
+        ss << Name + " > " + to_string(other);
+        return ShaderType(Type, ss.str());
+    }
 
-    
+    ShaderType operator<= (const float& other) {
+        stringstream ss;
+        ss << Name + " <= " + to_string(other);
+        return ShaderType(Type, ss.str());
+    }
 
+    ShaderType operator>= (const float& other) {
+        stringstream ss;
+        ss << Name + " >= " + to_string(other);
+        return ShaderType(Type, ss.str());
+    }
+ 
+    ShaderType operator= (const int& other) {
+        stringstream ss;
+        ss << Name + " = " + to_string(other);
+        string line = "\t" + Name + " = " + Type + "(" + to_string(other) + ")" + ";\n";
 
-    
+        //insertBefore("END", line);
+        return ShaderType(Type, ss.str());
+    }
 
     void operator= (const ShaderType& other) {
         stringstream ss;
+       
+        ss << Name + " = " + other.Name;
 
-        if (Type.compare("mat4") == 0 && other.Type.compare("vec3") == 0)
-        {
-            ss << Name + " = " + "vec4(" + other.Name + ", 1.0)";
-        }
-        else if (Type.compare("mat4") == 0 && other.Type.compare("vec2") == 0)
-        {
-            ss << Name + " = " + "vec4(" + other.Name + ", 1.0, 1.0)";
-        }
-        else if (Type.compare("mat4") == 0 && other.Type.compare("mat3") == 0)
-        {
-            ss << Name + " = " + "mat4(" + other.Name + ")";
-        }
-        else if (Type.compare("mat4") == 0 && other.Type.compare("mat2") == 0)
-        {
-            ss << Name + " = " + "mat4(" + other.Name + ")";
-        }
-        else if (Type.compare("mat3") == 0 && other.Type.compare("vec4") == 0)
-        {
-            ss << Name + " = " + "vec3(" + other.Name + ")";
-        }
-        else if (Type.compare("mat3") == 0 && other.Type.compare("vec2") == 0)
-        {
-            ss << Name + " = " + "vec3(" + other.Name + ", 1.0)";
-        }
-        else if (Type.compare("mat3") == 0 && other.Type.compare("mat4") == 0)
-        {
-            ss << Name + " = " + "mat3(" + other.Name + ")";
-        }
-        else if (Type.compare("mat3") == 0 && other.Type.compare("mat2") == 0)
-        {
-            ss << Name + " = " + "mat3(" + other.Name + ")";
-        }
-        else {
-            ss << Name + " = " + other.Name;
-        }
-
-        // Dont do this if functionOpen is true! 
         if (Name == "gl_Position") {
             string line = "\t" + Name + " = " + "vec4" + "(" + other.Name + ")" + ";";
-            insertBefore("End", line);
+            insertBefore("END", line);
             return;
         }
-        //
-        string line = "\t" + Name + " = " + Type + "(" + other.Name + ")" + ";\n";
+        
+        string line = Name + " = ";
 
-        insertBefore("End", line);
+        if (openLoop == true) {
+            line = "\t\t" + line;
+        }
+        else {
+            line = "\t" + line;
+        }
+
+        if (autoCast == true) {
+            line = line + Type + "(" + other.Name + ")" + ";\n";
+        }
+        else {
+            line = line + other.Name + ";\n";
+        }
+
+        insertBefore("END", line);
 
         return;
     }
@@ -229,25 +285,23 @@ public:
 
     void insertLine(string command, int line_number)
     {
-        fstream file("C:\\OpenGLS\\Project\\Project1\\ShaderWriter\\src\\Tests\\Test.txt");
+        fstream file(path);
         stringstream buffer;
         string line;
-        int current_line = 0; // variable to keep track of the current line number
+        int current_line = 0; 
 
         while (getline(file, line)) {
-            current_line++; // increment the current line number
+            current_line++;
             if (current_line == line_number) {
-                buffer << command << endl; // insert the new line at the specified line number
+                buffer << command << endl; 
             }
-            buffer << line << endl; // add the existing lines to the buffer
+            buffer << line << endl; 
         }
 
         file.close();
 
-        // truncate the original file and open it in output mode
-        file.open("C:\\OpenGLS\\Project\\Project1\\ShaderWriter\\src\\Tests\\Test.txt", ios::out | ios::trunc);
+        file.open(path, ios::out | ios::trunc);
 
-        // write the contents of the buffer to the file
         file << buffer.rdbuf();
         file.close();
     }
@@ -255,11 +309,11 @@ public:
     void insertBefore(string word, string insert)
     {
 
-        std::string fileName = "C:\\OpenGLS\\Project\\Project1\\ShaderWriter\\src\\Tests\\Test.txt";
+        std::string fileName = path;
         int lineNumber = 0;
         bool wordFound = false;
         
-        if (currentFunc.compare("main") == 0)
+        if (currentFunc.compare("END") == 0)
         {
             word = "End";
         }
@@ -269,13 +323,11 @@ public:
             cout << word << endl;
         }
         
-        // Else include currentFuncTag
         std::ifstream file(fileName);
         std::string line;
         while (std::getline(file, line)) {
             lineNumber++;
             if (line.find(word) != std::string::npos) {
-                std::cout << "The word '" << word << "' was found on line " << lineNumber << std::endl;
                 wordFound = true;
                 break;
             }
